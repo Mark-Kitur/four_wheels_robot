@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:macro name="four_wheels_ros2_control">
+        <ros2_control name="GazeboSystem" type="system">
+            <hardware>
+                <plugin>gz_ros2_control/GazeboSystem</plugin>
+            </hardware>
+
+            <joint name="front_left_wheel_joint">
+                <command_interface name="velocity"/>
+                <state_interface name="velocity"/>
+            </joint>
+            <joint name="front_right_wheel_joint">
+                <command_interface name="velocity"/>
+                <state_interface name="velocity"/>
+            </joint>
+            <joint name="back_left_wheel_joint">
+                <command_interface name="velocity"/>
+                <state_interface name="velocity"/>
+            </joint>
+            <joint name="back_right_wheel_joint">
+                <command_interface name="velocity"/>
+                <state_interface name="velocity"/>
+            </joint>
+        </ros2_control>
+    </xacro:macro>
+</robot>
