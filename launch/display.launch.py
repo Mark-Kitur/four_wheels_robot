@@ -42,7 +42,7 @@ def generate_launch_description():
     rviz = Node(
         package="rviz2",
         executable="rviz2",
-        output="screen"
+        output="log"
     )
 
     # Gazebo
@@ -94,7 +94,15 @@ def generate_launch_description():
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+                   "/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan"],
+        output='screen'
+    )
+
+    lidar_bridge =Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=["/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan"],
         output='screen'
     )
 
@@ -103,10 +111,10 @@ def generate_launch_description():
         gz_sim,clock_bridge,
         robot_state_publisher,
         # joint_state_publisher_gui,
-        #rviz,
+        # rviz,
         spawn_entity,
         delayed_spawners,
-        
+        #lidar_bridge
     ])
 
     return ld
