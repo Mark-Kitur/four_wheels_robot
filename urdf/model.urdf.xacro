@@ -6,7 +6,7 @@
 
     <!-- Include control definitions -->
     <xacro:include filename="$(find four_wheels_robot)/urdf/ros2_wheel_controllers.xacro"/>
-    <xacro:include filename="$(find four_wheels_robot)/urdf/gazebo_plugings.xacro"/>
+    <!-- <xacro:include filename="$(find four_wheels_robot)/urdf/gazebo_plugings.xacro"/> -->
 
     <xacro:macro name="wheel" params="prefix">
         <link name="${prefix}_wheel">
@@ -59,6 +59,14 @@
             </geometry>
         </collision>
     </link>
+    <link name="base_footprint"/>
+
+    <joint name="base_joint" type="fixed">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <axis xyz="0.0 0.0 0.0"/>
+    </joint>
 
     <!-- Wheels joints (adjusted z for ground contact) -->
     <xacro:macro name="wheel_joint" params="prefix x y r">
@@ -76,7 +84,6 @@
     <xacro:wheel_joint prefix="back_right"  x="-0.41" y="-0.47" r="1.57"/>
 
     <!-- Add ros2_control and Gazebo plugins -->
-    <xacro:four_wheels_ros2_control/>
-    <xacro:four_wheels_robot/>
-
+<!-- <xacro:four_wheels_control_config/>
+<xacro:four_wheels_robot/> -->
 </robot>

@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 import xacro
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
+
 
 def generate_launch_description():
     pkg_name = "four_wheels_robot"
@@ -14,10 +14,6 @@ def generate_launch_description():
     urdf_path = os.path.join(
         get_package_share_directory(pkg_name),
         "urdf", urdf_file
-    )
-    config_file =os.path.join(
-        get_package_share_directory(pkg_name),
-        "config","wheels_controllers.yaml"
     )
 
     robot_description = xacro.process_file(urdf_path).toxml()
@@ -30,12 +26,19 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description}]
     )
 
-    joint_state_publisher_gui = Node(
+    joint_state_publisher = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher"
+    )
+
+    joint_state_publisher_gui=Node(
         package="joint_state_publisher_gui",
         executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
-        output='screen'
+        name="joint_state_publisher_gui"
+
     )
+
     # Gazebo
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -44,34 +47,40 @@ def generate_launch_description():
         launch_arguments={'gz_args': '-r -v 4 empty.sdf'}.items()
     )
 
-    # Spawn robot
+    # Spawn robot (FIXED: Moved x, y, z positions from parameters to arguments)
     spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
-        arguments=['-name', 'four_wheels_robot', '-topic', 'robot_description'],
-        output='screen',
-        parameters=[{'x': 0.0, 'y': 0.0, 'z': 0.56}]
+        arguments=[
+            '-name', 'four_wheels_robot', 
+            '-topic', 'robot_description',
+            '-x', '0.0',
+            '-y', '0.0',
+            '-z', '0.56'
+        ],
+        output='screen'
     )
 
-    # Controller Manager + Controllers (much more reliable)
-    controller_manager = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[{'robot_description': robot_description},config_file],
-        output="screen",
-    )
-
-    # Load controllers via spawner (best practice)
+    # Load controllers via spawner
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['joint_state_broadcaster'],
     )
 
     velocity_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=['velocity_controller', '--controller-manager', '/controller_manager'],
+        arguments=['velocity_controller'],
+    )
+
+    # Delayed spawners to allow Gazebo enough time to boot up and initialize the controller manager
+    delayed_spawners = TimerAction(
+        period=3.0,  
+        actions=[
+            joint_state_broadcaster_spawner,
+            velocity_controller_spawner
+        ]
     )
 
     rviz = Node(
@@ -79,23 +88,22 @@ def generate_launch_description():
         executable="rviz2",
         output="screen"
     )
+        # Bridge ROS 2 and Gazebo Clock (FIXES THE WARNING)
+    clock_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+        output='screen'
+    )
 
-    # delayed_spawners = TimerAction(
-    #         period=2.0,  # Increase if still failing
-    #         actions=[
-    #             joint_state_broadcaster_spawner,
-    #             velocity_controller_spawner
-    #         ]
-    #     )
+
     ld = LaunchDescription([
-        gz_sim,
+       # gz_sim,clock_bridge,
         robot_state_publisher,
-        spawn_entity,
-        controller_manager,
-        joint_state_broadcaster_spawner,
-        velocity_controller_spawner,
+        joint_state_publisher,
+        # spawn_entity,
+        # delayed_spawners,
         rviz,
-        #joint_state_publisher_gui
     ])
 
     return ld
