@@ -26,17 +26,23 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description}]
     )
 
-    joint_state_publisher = Node(
-        package="joint_state_publisher",
-        executable="joint_state_publisher",
-        name="joint_state_publisher"
-    )
+    # joint_state_publisher = Node(
+    #     package="joint_state_publisher",
+    #     executable="joint_state_publisher",
+    #     name="joint_state_publisher"
+    # )
 
     joint_state_publisher_gui=Node(
         package="joint_state_publisher_gui",
         executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui"
+        name="joint_state_publisher_gui",
+        output="screen"
 
+    )
+    rviz = Node(
+        package="rviz2",
+        executable="rviz2",
+        output="screen"
     )
 
     # Gazebo
@@ -83,11 +89,7 @@ def generate_launch_description():
         ]
     )
 
-    rviz = Node(
-        package="rviz2",
-        executable="rviz2",
-        output="screen"
-    )
+
         # Bridge ROS 2 and Gazebo Clock (FIXES THE WARNING)
     clock_bridge = Node(
         package='ros_gz_bridge',
@@ -98,12 +100,13 @@ def generate_launch_description():
 
 
     ld = LaunchDescription([
-       # gz_sim,clock_bridge,
+        gz_sim,clock_bridge,
         robot_state_publisher,
-        joint_state_publisher,
-        # spawn_entity,
-        # delayed_spawners,
-        rviz,
+        # joint_state_publisher_gui,
+        #rviz,
+        spawn_entity,
+        delayed_spawners,
+        
     ])
 
     return ld
