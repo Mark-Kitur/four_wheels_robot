@@ -11,7 +11,7 @@
         <sensor name="gpu_lidar" type="gpu_lidar">
             <pose relative_to='lidar_link'>0 0 0 0 0 0</pose>
             <topic>/scan</topic>
-            <update_rate>2</update_rate>
+            <update_rate>20</update_rate>
 
             <lidar>
                 <scan>
@@ -39,5 +39,72 @@
            <always_on>1</always_on>
            <visualize>1</visualize> 
         </sensor>
+
     </gazebo>
+
+        <!--===========IMU SENSOR=================-->
+<gazebo reference="imu_link">
+  <sensor name="imu_sensor" type="imu">
+    <always_on>true</always_on>
+    <update_rate>10</update_rate>
+    <visualize>true</visualize>
+    <topic>/data/imu</topic>
+    <gz_frame_id>imu_link</gz_frame_id>
+    <imu>
+      <angular_velocity>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </x>
+        <y>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </y>
+        <z>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </z>
+      </angular_velocity>
+      <linear_acceleration>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </x>
+        <y>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </y>
+        <z>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </z>
+      </linear_acceleration>
+    </imu>
+  </sensor>
+</gazebo>
+
 </robot>

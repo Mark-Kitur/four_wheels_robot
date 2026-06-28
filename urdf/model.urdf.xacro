@@ -106,5 +106,26 @@
         <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0"/>
     </joint>
 
+    <!-- Adding IMU SENSOR-->
+<!-- Adding IMU SENSOR -->
+<link name="imu_link">
+  <visual>
+    <geometry>
+      <box size="0.1 0.1 0.1"/>
+    </geometry>
+  </visual>
+  <collision>
+    <geometry>
+      <box size="0.1 0.1 0.1"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="imu_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="imu_link"/>
+  <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+</joint>
+
 
 </robot>

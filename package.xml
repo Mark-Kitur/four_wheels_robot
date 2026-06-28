@@ -18,6 +18,7 @@
   <!-- Robot description -->
   <exec_depend>xacro</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
 
   <!-- Gazebo Sim -->
   <exec_depend>ros_gz_sim</exec_depend>

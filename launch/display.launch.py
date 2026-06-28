@@ -3,8 +3,9 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import xacro
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription, TimerAction,DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
@@ -22,7 +23,7 @@ def generate_launch_description():
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        output="screen",
+        #output="screen",
         parameters=[{'robot_description': robot_description}]
     )
 
@@ -94,17 +95,22 @@ def generate_launch_description():
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-                   "/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan"],
+        arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
+            '/data/imu@sensor_msgs/msg/Imu]gz.msgs.IMU'   # Cleaned up trailing brackets
+        ],
         output='screen'
     )
 
-    lidar_bridge =Node(
-        package="ros_gz_bridge",
-        executable="parameter_bridge",
-        arguments=["/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan"],
-        output='screen'
-    )
+    #====== Locolization Node ===#
+    robot_localization_node = Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[os.path.join(pkg_name, 'config/ekf.yaml')]
+        )
 
 
     ld = LaunchDescription([
@@ -114,7 +120,7 @@ def generate_launch_description():
         # rviz,
         spawn_entity,
         delayed_spawners,
-        #lidar_bridge
+        robot_localization_node
     ])
 
     return ld
