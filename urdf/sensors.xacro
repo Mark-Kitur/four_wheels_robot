@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-    <!--lidar sensor-->
     <gazebo>
         <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
             <render_engine>ogre2</render_engine>
         </plugin>
-    </gazebo>
+  </gazebo>
 
+        <!--lidar sensor-->
     <gazebo reference="lidar_link">
         <sensor name="gpu_lidar" type="gpu_lidar">
             <pose relative_to='lidar_link'>0 0 0 0 0 0</pose>
@@ -44,67 +44,34 @@
 
         <!--===========IMU SENSOR=================-->
 <gazebo reference="imu_link">
-  <sensor name="imu_sensor" type="imu">
-    <always_on>true</always_on>
-    <update_rate>10</update_rate>
-    <visualize>true</visualize>
-    <topic>/data/imu</topic>
-    <gz_frame_id>imu_link</gz_frame_id>
-    <imu>
+   <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+
+      <noise type="gaussian">
+        <mean>0.0</mean>
+        <stddev>0.02</stddev> <!-- accelerometer noise (m/s^2) -->
+      </noise>
+
       <angular_velocity>
-        <x>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>2e-4</stddev>
-            <bias_mean>0.0000075</bias_mean>
-            <bias_stddev>0.0000008</bias_stddev>
-          </noise>
-        </x>
-        <y>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>2e-4</stddev>
-            <bias_mean>0.0000075</bias_mean>
-            <bias_stddev>0.0000008</bias_stddev>
-          </noise>
-        </y>
-        <z>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>2e-4</stddev>
-            <bias_mean>0.0000075</bias_mean>
-            <bias_stddev>0.0000008</bias_stddev>
-          </noise>
-        </z>
+        <noise type="gaussian">
+          <mean>0.0</mean>
+          <stddev>0.001</stddev> <!-- gyro noise (rad/s) -->
+        </noise>
       </angular_velocity>
+
       <linear_acceleration>
-        <x>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>1.7e-2</stddev>
-            <bias_mean>0.1</bias_mean>
-            <bias_stddev>0.001</bias_stddev>
-          </noise>
-        </x>
-        <y>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>1.7e-2</stddev>
-            <bias_mean>0.1</bias_mean>
-            <bias_stddev>0.001</bias_stddev>
-          </noise>
-        </y>
-        <z>
-          <noise type="gaussian">
-            <mean>0.0</mean>
-            <stddev>1.7e-2</stddev>
-            <bias_mean>0.1</bias_mean>
-            <bias_stddev>0.001</bias_stddev>
-          </noise>
-        </z>
+        <noise type="gaussian">
+          <mean>0.0</mean>
+          <stddev>0.02</stddev> <!-- accel noise (m/s^2) -->
+        </noise>
       </linear_acceleration>
-    </imu>
-  </sensor>
+
+      <plugin filename="gz-sim-imu-system"
+              name="gz::sim::systems::Imu">
+        <topic>/imu</topic>
+      </plugin>
+    </sensor>
 </gazebo>
 
 </robot>

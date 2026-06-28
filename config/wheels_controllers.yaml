@@ -2,12 +2,20 @@ controller_manager:
   ros__parameters:
     update_rate: 50
 
-    
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     velocity_controller:
       type: diff_drive_controller/DiffDriveController
+
+
+    imu_sensor_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
+imu_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: "imu_sensor"
+    frame_id: "imu_link"
 
 velocity_controller:
   ros__parameters:
@@ -19,8 +27,10 @@ velocity_controller:
 
     odom_frame_id: odom
     base_frame_id: base_footprint
-    
 
+    # 3. OPTIONAL: ENABLE IMU FUSION IN DIFF_DRIVE (Set to false if using robot_localization package)
+    enable_odom_tf: false
+    
     pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
 
