@@ -9,16 +9,23 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
+    declare_use_sim_time = DeclareLaunchArgument(
+        "use_sim_time",default_value="True", description="Use sim time"
+    )
     use_sim_time = LaunchConfiguration("use_sim_time", default=True)
     pkg_name = "four_wheels_robot"
     urdf_file = 'model.urdf.xacro'
+
 
     pkg_share_dir = get_package_share_directory(pkg_name)
 
     urdf_path = os.path.join(pkg_share_dir, "urdf", urdf_file)
     robot_description = xacro.process_file(urdf_path).toxml()
 
-    # Robot State Publisher (FIXED: Added use_sim_time parameter)
+    nav2_params_yaml= os.path.join(pkg_share_dir,'config','nav2_params.yaml')
+    bridge_conf = os.path.join(pkg_share_dir,'config', "bridge.yaml")
+
+
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -39,8 +46,8 @@ def generate_launch_description():
     rviz = Node(
         package="rviz2",
         executable="rviz2",
-        output="log",
-        parameters=[{"use_sim_time":True}]
+        output="screen",
+        parameters=[{"use_sim_time":use_sim_time}]
     )
 
     # Gazebo
@@ -48,7 +55,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([
             os.path.join(get_package_share_directory("ros_gz_sim"), 'launch', 'gz_sim.launch.py')
         ]),
-        launch_arguments={'gz_args': '-r -v 4 empty.sdf'}.items()
+        launch_arguments={'gz_args': '-r -v 4 empty.sdf'}.items(),
     )
 
     imu_broadcaster_spawner = Node(
@@ -92,30 +99,36 @@ def generate_launch_description():
     )
 
 
-    # (FIXED: Corrected directional brackets for clock bridge)
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=[
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
-            '/imu@sensor_msgs/msg/Imu@gz.msgs.IMU' 
+        parameters=[
+            {'config_file': bridge_conf,
+             'use_sim_time': use_sim_time}
         ],
         output='screen'
     )
-
     robot_localization_node = Node(
         package='robot_localization',
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[
-            os.path.join(pkg_share_dir, 'config', 'ekf.yaml'),
-            {'use_sim_time': use_sim_time}
-        ]
+        parameters=[os.path.join(pkg_share_dir, 'config', 'ekf.yaml'),
+                    {'use_sim_time': use_sim_time}])
+    
+    static_trans=Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_transform_publisher',
+        output='screen',
+        parameters=[{
+            'use_sim_time': use_sim_time
+        }],
+        arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'four_wheels_robot/base_footprint/lidar_link']
     )
 
     ld = LaunchDescription([
+        declare_use_sim_time,
         gz_sim,
         clock_bridge,
         robot_state_publisher,
@@ -123,6 +136,7 @@ def generate_launch_description():
         rviz,
         spawn_entity,
         delayed_spawners,
+        static_trans,
         robot_localization_node
     ])
 
