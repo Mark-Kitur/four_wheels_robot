@@ -19,6 +19,7 @@ imu_sensor_broadcaster:
 
 velocity_controller:
   ros__parameters:
+    enable_odom_tf: false # to enable only the ekf node to publish the odom->base_footprint transform
     left_wheel_names: ["back_left_wheel_joint","front_left_wheel_joint"]
     right_wheel_names: ["back_right_wheel_joint","front_right_wheel_joint"]
       

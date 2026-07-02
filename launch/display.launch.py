@@ -10,7 +10,7 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     declare_use_sim_time = DeclareLaunchArgument(
-        "use_sim_time",default_value="True", description="Use sim time"
+        "use_sim_time",default_value="true", description="Use sim time"
     )
     use_sim_time = LaunchConfiguration("use_sim_time", default=True)
     pkg_name = "four_wheels_robot"
@@ -22,10 +22,9 @@ def generate_launch_description():
     urdf_path = os.path.join(pkg_share_dir, "urdf", urdf_file)
     robot_description = xacro.process_file(urdf_path).toxml()
 
-    nav2_params_yaml= os.path.join(pkg_share_dir,'config','nav2_params.yaml')
     bridge_conf = os.path.join(pkg_share_dir,'config', "bridge.yaml")
 
-
+    
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -47,6 +46,7 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         output="screen",
+        name='rviz2',
         parameters=[{"use_sim_time":use_sim_time}]
     )
 
@@ -55,13 +55,16 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([
             os.path.join(get_package_share_directory("ros_gz_sim"), 'launch', 'gz_sim.launch.py')
         ]),
-        launch_arguments={'gz_args': '-r -v 4 empty.sdf'}.items(),
+        launch_arguments={
+            'gz_args': '-r -v 4 empty.sdf',
+            'use_sim_time':use_sim_time}.items(),
     )
 
     imu_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=['imu_sensor_broadcaster'],
+        parameters=[{'use_sim_time': use_sim_time}] 
     )
     # Spawn robot
     spawn_entity = Node(
@@ -82,12 +85,14 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=['joint_state_broadcaster'],
+        parameters=[{'use_sim_time': use_sim_time}] 
     )
 
     velocity_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=['velocity_controller'],
+        parameters=[{'use_sim_time': use_sim_time}] 
     )
 
     delayed_spawners = TimerAction(
@@ -126,7 +131,6 @@ def generate_launch_description():
         }],
         arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'four_wheels_robot/base_footprint/lidar_link']
     )
-
     ld = LaunchDescription([
         declare_use_sim_time,
         gz_sim,
@@ -137,7 +141,7 @@ def generate_launch_description():
         spawn_entity,
         delayed_spawners,
         static_trans,
-        robot_localization_node
+        robot_localization_node,
     ])
 
     return ld
