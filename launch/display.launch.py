@@ -24,6 +24,8 @@ def generate_launch_description():
 
     bridge_conf = os.path.join(pkg_share_dir,'config', "bridge.yaml")
 
+    world_path = os.path.join(pkg_share_dir,"world", 'simple_.sdf')
+
     
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -56,8 +58,9 @@ def generate_launch_description():
             os.path.join(get_package_share_directory("ros_gz_sim"), 'launch', 'gz_sim.launch.py')
         ]),
         launch_arguments={
-            'gz_args': '-r -v 4 empty.sdf',
-            'use_sim_time':use_sim_time}.items(),
+            "gz_args": [world_path, " -r"], 
+            'use_sim_time': use_sim_time
+        }.items(),
     )
 
     imu_broadcaster_spawner = Node(
@@ -107,6 +110,7 @@ def generate_launch_description():
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
+        name="parameter_bridge",
         parameters=[
             {'config_file': bridge_conf,
              'use_sim_time': use_sim_time}
@@ -121,16 +125,16 @@ def generate_launch_description():
         parameters=[os.path.join(pkg_share_dir, 'config', 'ekf.yaml'),
                     {'use_sim_time': use_sim_time}])
     
-    static_trans=Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_transform_publisher',
-        output='screen',
-        parameters=[{
-            'use_sim_time': use_sim_time
-        }],
-        arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'four_wheels_robot/base_footprint/lidar_link']
-    )
+    # static_trans=Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     name='static_transform_publisher',
+    #     output='screen',
+    #     parameters=[{
+    #         'use_sim_time': use_sim_time
+    #     }],
+    #     arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'four_wheels_robot/base_footprint/lidar_link']
+    # )
     ld = LaunchDescription([
         declare_use_sim_time,
         gz_sim,
@@ -140,7 +144,6 @@ def generate_launch_description():
         rviz,
         spawn_entity,
         delayed_spawners,
-        static_trans,
         robot_localization_node,
     ])
 

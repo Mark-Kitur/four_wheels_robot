@@ -19,7 +19,7 @@ def generate_launch_description():
     # 2. Get exact file paths
     amcl_yaml = os.path.join(pkg_share_dir, 'config', 'amcl.yaml')
     nav_params = os.path.join(pkg_share_dir, 'config', 'nav2_params.yaml')
-    map_file = os.path.join(pkg_share_dir, 'map', 'map_1.yaml')  
+    map_file = os.path.join(pkg_share_dir, 'map', 'map_room.yaml')  
     
     # Common parameter dict to merge with YAML files
     common_params = {'use_sim_time': use_sim_time_var}
@@ -40,7 +40,8 @@ def generate_launch_description():
         executable="amcl",
         name="amcl",
         output="screen",
-        parameters=[amcl_yaml, common_params]  # Pass the file directly
+        parameters=[amcl_yaml, common_params],  # Pass the file directly
+        arguments=['--ros-args', '--log-level', 'debug']
     )
 
     nav2_controller = Node(
@@ -116,19 +117,27 @@ def generate_launch_description():
             'use_sim_time': use_sim_time_var,
             'autostart': True,
             'node_names': [
-                'amcl',  # Added AMCL to the lifecycle management loop
+                'map_server',        # 1. Map server must come first
+                'amcl',              # 2. AMCL localization must come second
+                'planner_server',
                 'controller_server',
                 'smoother_server',
-                'planner_server',
                 'behavior_server',
                 'bt_navigator',
                 'waypoint_follower',
-                'collision_monitor',
-                "map_server"  # Added map_server to the lifecycle management loop
+                'collision_monitor'
             ]
         }]
     )
 
+    static_transform_publisher_map_to_odom = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_transform_publisher_map_to_odom',
+        output='screen',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        parameters=[{'use_sim_time': use_sim_time_var}]
+    )   
     return LaunchDescription([
         declare_use_sim_time,
         amcl_node,
@@ -138,6 +147,8 @@ def generate_launch_description():
         nav2_behaviour,
         nav2_navigator,
         nav2_waypoint_follower,
-        nav2_collision_avoidance,map_server_node,
+        nav2_collision_avoidance,
+        map_server_node,
+        #static_transform_publisher_map_to_odom,
         lifecycle_manager
     ])
