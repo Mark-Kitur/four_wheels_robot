@@ -154,7 +154,7 @@
       <link name='partition_left'>
         <pose>0 3.0 1.25 0 0 0</pose> <!-- Shifted upward -->
         <collision name='collision'>
-          <geometry><box><size>0.2 4.0 2.5</size></box></geometry> <!-- 4m length -->
+          <geometry><box><size>0.2 6.0 2.5</size></box></geometry> <!-- 4m length -->
         </collision>
         <visual name='visual'>
           <geometry><box><size>0.2 4.0 2.5</size></box></geometry>
@@ -165,42 +165,13 @@
         </visual>
       </link>
 
-      <!-- PARTITION SEGMENT B (Right Side) -->
-      <link name='partition_right'>
-        <pose>0 -3.0 1.25 0 0 0</pose> <!-- Shifted downward -->
-        <collision name='collision'>
-          <geometry><box><size>0.2 4.0 2.5</size></box></geometry> <!-- 4m length -->
-        </collision>
-        <visual name='visual'>
-          <geometry><box><size>0.2 4.0 2.5</size></box></geometry>
-          <material>
-            <ambient>0.6 0.4 0.3 1</ambient>
-            <diffuse>0.6 0.4 0.3 1</diffuse>
-          </material>
-        </visual>
-      </link>
       
-      <!-- Clean L-shape corner extending into the room -->
-      <link name="ext_right">
-        <!-- Shifted down to meet the edge, and forward into the room -->
-        <pose>-1.2 -1.0 1.25 0 0 1.57</pose>
-        <collision name='collision'>
-          <geometry><box><size>0.2 5.0 2.5</size></box></geometry>
-        </collision>
-        <visual name='visual'>
-          <geometry><box><size>0.2 5.0 2.5</size></box></geometry>
-          <material>
-            <ambient>0.6 0.4 0.3 1</ambient>
-            <diffuse>0.6 0.4 0.3 1</diffuse>
-          </material>
-        </visual>
-      </link>
 
       <link name="ext_left">
         <!-- Shifted down to meet the edge, and forward into the room -->
         <pose>0.5 1.0 1.25 0 0 1.57</pose>
         <collision name='collision'>
-          <geometry><box><size>0.2 5.0 2.5</size></box></geometry>
+          <geometry><box><size>0.2 6.0 2.5</size></box></geometry>
         </collision>
         <visual name='visual'>
           <geometry><box><size>0.2 5.0 2.5</size></box></geometry>

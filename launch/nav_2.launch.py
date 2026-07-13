@@ -19,20 +19,18 @@ def generate_launch_description():
     # 2. Get exact file paths
     amcl_yaml = os.path.join(pkg_share_dir, 'config', 'amcl.yaml')
     nav_params = os.path.join(pkg_share_dir, 'config', 'nav2_params.yaml')
-    map_file = os.path.join(pkg_share_dir, 'map', 'map_room.yaml')  
-    
-    # Common parameter dict to merge with YAML files
-    common_params = {'use_sim_time': use_sim_time_var}
+    map_file = os.path.join(pkg_share_dir, 'map', 't_map.yaml')  
 
     map_server_node = Node(
         package="nav2_map_server",
         executable="map_server",
         name="map_server",
         output="screen",
-        # Pass the map path using the required 'yaml_filename' key
-        parameters=[{"yaml_filename": map_file}, common_params], 
+        parameters=[
+            {"yaml_filename": map_file}, 
+            {"use_sim_time": use_sim_time_var}
+        ], 
     )
-
 
     # 3. Individual Nav2 Node Configurations
     amcl_node = Node(
@@ -40,8 +38,7 @@ def generate_launch_description():
         executable="amcl",
         name="amcl",
         output="screen",
-        parameters=[amcl_yaml, common_params],  # Pass the file directly
-        arguments=['--ros-args', '--log-level', 'debug']
+        parameters=[amcl_yaml, {"use_sim_time": use_sim_time_var}],
     )
 
     nav2_controller = Node(
@@ -49,8 +46,9 @@ def generate_launch_description():
         executable="controller_server",
         name="controller_server",
         output="screen",    
-        parameters=[nav_params, common_params],
-        arguments=['--ros-args', '--log-level', 'info']
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info'],
+        remappings=[('/cmd_vel', '/velocity_controller/cmd_vel')] 
     )
     
     nav2_smoother = Node(
@@ -58,8 +56,8 @@ def generate_launch_description():
         executable="smoother_server",
         name="smoother_server",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     nav2_planner = Node(
@@ -67,8 +65,8 @@ def generate_launch_description():
         executable="planner_server",
         name="planner_server",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     nav2_behaviour = Node(
@@ -76,17 +74,17 @@ def generate_launch_description():
         executable="behavior_server",
         name="behavior_server",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     nav2_navigator = Node(
-        package="nav2_bt_navigator",  # Fixed package name (was nav2_navigator)
+        package="nav2_bt_navigator",  
         executable="bt_navigator",
         name="bt_navigator",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     nav2_waypoint_follower = Node(
@@ -94,17 +92,17 @@ def generate_launch_description():
         executable="waypoint_follower",
         name="waypoint_follower",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     nav2_collision_avoidance = Node(
-        package="nav2_collision_monitor",  # Fixed package name (was nav2_collision_avoidance)
+        package="nav2_collision_monitor",  
         executable="collision_monitor",
         name="collision_monitor",
         output="screen",
-        arguments=['--ros-args', '--log-level', 'info'],
-        parameters=[nav_params, common_params]
+        parameters=[nav_params, {"use_sim_time": use_sim_time_var}],
+        arguments=['--ros-args', '--log-level', 'info']
     )
     
     # 4. Lifecycle Manager controls system startup transition
@@ -116,39 +114,27 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': use_sim_time_var,
             'autostart': True,
-            'node_names': [
-                'map_server',        # 1. Map server must come first
-                'amcl',              # 2. AMCL localization must come second
-                'planner_server',
-                'controller_server',
-                'smoother_server',
-                'behavior_server',
-                'bt_navigator',
-                'waypoint_follower',
-                'collision_monitor'
-            ]
+            'node_names':[
+            'map_server',
+            'amcl',
+            'planner_server',
+            'controller_server',
+            'behavior_server',
+            'bt_navigator'
+        ]
         }]
     )
 
-    static_transform_publisher_map_to_odom = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_transform_publisher_map_to_odom',
-        output='screen',
-        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
-        parameters=[{'use_sim_time': use_sim_time_var}]
-    )   
     return LaunchDescription([
         declare_use_sim_time,
         amcl_node,
         nav2_controller,
-        nav2_smoother,
+        #nav2_smoother,
         nav2_planner,
         nav2_behaviour,
         nav2_navigator,
-        nav2_waypoint_follower,
-        nav2_collision_avoidance,
+        #nav2_waypoint_follower,
+        #nav2_collision_avoidance,
         map_server_node,
-        #static_transform_publisher_map_to_odom,
         lifecycle_manager
     ])
