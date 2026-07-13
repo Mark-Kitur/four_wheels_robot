@@ -34,6 +34,6 @@ velocity_controller:
 
     publish_rate: 50.0
 
-    # open_loop: true
+    open_loop: true
     # position_feedback: false
 

@@ -107,34 +107,35 @@ def generate_launch_description():
     
     # 4. Lifecycle Manager controls system startup transition
     lifecycle_manager = Node(
-        package="nav2_lifecycle_manager",
-        executable="lifecycle_manager",
-        name="lifecycle_manager_navigation",
-        output="screen",
-        parameters=[{
-            'use_sim_time': use_sim_time_var,
-            'autostart': True,
-            'node_names':[
-            'map_server',
-            'amcl',
-            'planner_server',
-            'controller_server',
-            'behavior_server',
-            'bt_navigator'
-        ]
-        }]
-    )
+            package="nav2_lifecycle_manager",
+            executable="lifecycle_manager",
+            name="lifecycle_manager_navigation",
+            output="screen",
+            parameters=[{
+                'use_sim_time': use_sim_time_var,
+                'autostart': True,
+                'node_names': [
+                    'map_server',
+                    'amcl',
+                    'planner_server',
+                    'controller_server',
+                    'behavior_server',
+                    'bt_navigator'
+                ]
+            }]
+        )
 
     return LaunchDescription([
         declare_use_sim_time,
+        map_server_node,
         amcl_node,
+        nav2_planner,
         nav2_controller,
         #nav2_smoother,
-        nav2_planner,
+        
         nav2_behaviour,
         nav2_navigator,
         #nav2_waypoint_follower,
         #nav2_collision_avoidance,
-        map_server_node,
         lifecycle_manager
     ])
