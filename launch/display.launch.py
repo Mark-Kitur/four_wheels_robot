@@ -77,8 +77,8 @@ def generate_launch_description():
             '-name', 'four_wheels_robot', 
             '-topic', 'robot_description',
             '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.56'
+            '-y', '-1.0',
+            '-z', '0.6'
         ],
         output='screen'
     )

@@ -134,7 +134,7 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
+      update_frequency: 10.0
       publish_frequency: 2.0
       global_frame: odom
       robot_base_frame: base_link
@@ -142,12 +142,12 @@ local_costmap:
       width: 3
       height: 3
       introspection_mode: "disabled"
-      footprint: "[[0.2, 0.2],[0.2,-0.2],[-0.2,-0.2],[-0.2, 0.2]]"
+      footprint: "[[0.65, 0.40], [0.65, -0.40], [-0.65, -0.40], [-0.65, 0.40]]"
       plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.25
+        inflation_radius: 0.35
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -169,7 +169,7 @@ global_costmap:
   global_costmap:
     ros__parameters:
       footprint_padding: 0.03
-      update_frequency: 5.0
+      update_frequency: 10.0
       publish_frequency: 2.0
       transform_tolerance: 0.1
       global_frame: map

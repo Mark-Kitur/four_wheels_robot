@@ -42,7 +42,7 @@
     <link name="base_link">
         <inertial>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-            <mass value="10.0"/> <!-- Increased mass a bit -->
+            <mass value="10.0"/> 
             <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
         </inertial>
         <visual>
@@ -70,7 +70,6 @@
         <axis xyz="0.0 0.0 0.02"/>
     </joint>
 
-    <!-- Wheels joints (adjusted z for ground contact) -->
     <xacro:macro name="wheel_joint" params="prefix x y r">
         <joint name="${prefix}_wheel_joint" type="continuous">
             <origin xyz="${x} ${y} -${wheel_radius}" rpy="${r} 0 0"/>
