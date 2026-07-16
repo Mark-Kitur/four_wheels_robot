@@ -131,11 +131,7 @@ def generate_launch_description():
         amcl_node,
         nav2_planner,
         nav2_controller,
-        #nav2_smoother,
-        
         nav2_behaviour,
         nav2_navigator,
-        #nav2_waypoint_follower,
-        #nav2_collision_avoidance,
         lifecycle_manager
     ])
