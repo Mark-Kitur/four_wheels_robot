@@ -31,6 +31,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            "ardu = four_wheels_robot.talk_arduino:main",
         ],
     },
 )
