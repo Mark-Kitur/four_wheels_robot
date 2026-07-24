@@ -16,7 +16,7 @@ class ArduinoSerial(Node):
             timeout=1
         )
 
-        self.timer = self.create_timer(3, self.send_commands)
+        self.timer = self.create_timer(2, self.send_commands)
 
     def send_commands(self):
 
@@ -31,9 +31,17 @@ class ArduinoSerial(Node):
                 self.ser.write(bytes([230,230]))
 
                 self.get_logger().info(f"Sent: {left}, {right}")
+                self.ser.flush()
+
+                data = self.ser.readline().decode().strip()
+                value = int(data)
+                self.get_logger().info(f"Received: {value}")
 
         except Exception as e:
             self.get_logger().error(f"Serial error: {e}")
+    
+    # def receive_encoder(self):
+        
 
 
 def main(args=None):
