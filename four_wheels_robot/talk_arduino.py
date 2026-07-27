@@ -13,7 +13,7 @@ class ArduinoSerial(Node):
         super().__init__("arduino_rpi_serial")
         self.ser = Serial(port="/dev/ttyACM0", baudrate=9600, timeout=1)
         # Timer calls the method without arguments
-        self.timer = self.create_timer(2, self.send_commands)
+        self.timer = self.create_timer(1, self.send_commands)
 
     def send_commands(self, left=None, right=None):
         # If called by timer, left/right are None; generate random
@@ -27,10 +27,10 @@ class ArduinoSerial(Node):
                 self.get_logger().info(f"Sent: {left}, {right}")
                 self.ser.flush()
 
-                data = self.ser.readline().decode().strip()
-                if data:
-                    value = int(data)
-                    self.get_logger().info(f"Received: {value}")
+                # data = self.ser.readline().decode().strip()
+                # if data:
+                #     value = int(data)
+                #     self.get_logger().info(f"Received: {value}")
         except Exception as e:
             self.get_logger().error(f"Serial error: {e}")
 
@@ -59,6 +59,8 @@ class KeyBoard(Node):
                     self.arduino.send_commands(180, 220)
                 elif ch == "l":
                     self.arduino.send_commands(220, 180)
+                elif ch == "k":
+                    self.arduino.send_commands(0,0)
 
     def destroy_node(self):
         termios.tcsetattr(self.fd, termios.TCSADRAIN, self.old_settings)
