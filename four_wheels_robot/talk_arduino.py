@@ -32,7 +32,7 @@ class ArduinoSerial(Node):
                     value = int(data)
                     self.get_logger().info(f"Received: {value}")
         except Exception as e:
-            self.get_logger().error(f"Serial error: {e}")q
+            self.get_logger().error(f"Serial error: {e}")
 
 class KeyBoard(Node):
     def __init__(self, arduino_node):
