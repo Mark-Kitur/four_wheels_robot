@@ -6,7 +6,7 @@
 
     <!-- Include control definitions -->
     <xacro:include filename="$(find four_wheels_robot)/urdf/ros2_wheel_controllers.xacro"/>
-    <xacro:include filename="$(find four_wheels_robot)/urdf/sensors.xacro"/>
+    <!-- <xacro:include filename="$(find four_wheels_robot)/urdf/sensors.xacro"/> -->
 
     <xacro:macro name="wheel" params="prefix">
         <link name="${prefix}_wheel">

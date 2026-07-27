@@ -11,6 +11,8 @@ def generate_launch_description():
     xacro_file = "model.urdf.xacro"
     xacro_file_path = os.path.join(pkg_name,"urdf", xacro_file)
 
+    controllers = os.path.join(pkg_name,"congif","wheels_controllers.yaml")
+
     robot_description = xacro.process_file(xacro_file_path).toxml()
 
     robot_state_publisher = Node(
@@ -25,7 +27,7 @@ def generate_launch_description():
     controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        output="screen",
+        output="both",
         parameters=[
             {"robot_description": robot_description},
             controllers
@@ -40,11 +42,11 @@ def generate_launch_description():
     )
 
 
-    imu_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=['imu_sensor_broadcaster']
-    )
+    # imu_broadcaster_spawner = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=['imu_sensor_broadcaster']
+    # )
 
     velocity_spawner=Node(
         package="controller_manager",
@@ -57,7 +59,7 @@ def generate_launch_description():
     timer_action= TimerAction(
         period=3.0,
         actions=[
-            joint_state_broadcaster_spawner, imu_broadcaster_spawner, velocity_spawner
+            joint_state_broadcaster_spawner,  velocity_spawner
         ]
     )
 
