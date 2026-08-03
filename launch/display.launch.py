@@ -137,8 +137,8 @@ def generate_launch_description():
     # )
     ld = LaunchDescription([
         declare_use_sim_time,
-        gz_sim,
-        clock_bridge,
+        #gz_sim,
+        #clock_bridge,
         robot_state_publisher,
         # joint_state_publisher_gui,
         rviz,

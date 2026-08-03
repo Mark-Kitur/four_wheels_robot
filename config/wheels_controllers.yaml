@@ -25,7 +25,7 @@ velocity_controller:
     left_wheel_names: ["back_left_wheel_joint"]
     right_wheel_names: ["back_right_wheel_joint"]
       
-    wheel_separation: 0.98
+    wheel_separation: 0.3
     wheel_radius: 0.28
 
     odom_frame_id: odom
@@ -38,7 +38,7 @@ velocity_controller:
 
     open_loop: true
     enable_odom_tf: true
-    use_stamped_vel: true
+    use_stamped_vel: false
 
     linear.x.has_velocity_limits: true
     linear.x.has_acceleration_limits: true
