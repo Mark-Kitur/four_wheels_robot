@@ -1,0 +1,224 @@
+#include "four_wheel_hardware/diffbot_hardware.hpp"
+#include "four_wheel_hardware/actual_hardware_interface.hpp"
+#include <cassert>
+#include <chrono>
+#include <hardware_interface/hardware_component_interface.hpp>
+#include <hardware_interface/hardware_info.hpp>
+#include <hardware_interface/lexical_casts.hpp>
+#include <hardware_interface/system_interface.hpp>
+#include <hardware_interface/types/hardware_interface_return_values.hpp>
+#include <hardware_interface/types/hardware_interface_type_values.hpp>
+#include <iomanip>
+#include <memory>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/utilities.hpp>
+#include <sstream>
+#include <string>
+
+// INFO: INIT
+namespace four_wheel_hardware {
+hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
+    const hardware_interface::HardwareComponentInterfaceParams &params) {
+
+  if (hardware_interface::SystemInterface::on_init(params) !=
+      hardware_interface::CallbackReturn::SUCCESS) {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  this->hw_start_sec_ = hardware_interface::stod(
+      info_.hardware_parameters["hw_start_duration_sec"]);
+
+  this->hw_stop_sec_ = hardware_interface::stod(
+      info_.hardware_parameters["hw_stop_duration_sec"]);
+
+  this->serial_port_ = info_.hardware_parameters["serial_port"];
+  this->baudrate_ = std::stoi(info_.hardware_parameters["baudrate"]);
+
+  // TODO:
+  // add wheel specific code, like a struct or something
+  //
+
+  RCLCPP_INFO(get_logger(), "ON_INIT-------------------------------");
+
+  this->arduino_ = std::make_unique<ArduinoInterface>();
+
+  for (const hardware_interface::ComponentInfo &joint : info_.joints) {
+    if (joint.command_interfaces.size() != 1) {
+      RCLCPP_FATAL(get_logger(),
+                   "Joint '%s' has %zu command interfaces found. 1 expected.",
+                   joint.name.c_str(), joint.command_interfaces.size());
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+
+    if (joint.command_interfaces[0].name !=
+        hardware_interface::HW_IF_VELOCITY) {
+      RCLCPP_FATAL(
+          get_logger(),
+          "Joint '%s' have %s command interfaces found. '%s' expected.",
+          joint.name.c_str(), joint.command_interfaces[0].name.c_str(),
+          hardware_interface::HW_IF_VELOCITY);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+
+    // check number of state interfaces
+    if (joint.state_interfaces.size() != 2) {
+      RCLCPP_FATAL(get_logger(),
+                   "Joint '%s' has %zu state interface. 2 expected.",
+                   joint.name.c_str(), joint.state_interfaces.size());
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+
+    // check first is pos and secod is velocity
+    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
+      RCLCPP_FATAL(
+          get_logger(),
+          "Joint '%s' have '%s' as first state interface. '%s' expected.",
+          joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
+          hardware_interface::HW_IF_POSITION);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+
+    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
+      RCLCPP_FATAL(
+          get_logger(),
+          "Joint '%s' have '%s' as second state interface. '%s' expected.",
+          joint.name.c_str(), joint.state_interfaces[1].name.c_str(),
+          hardware_interface::HW_IF_VELOCITY);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+  }
+
+  for (const hardware_interface::ComponentInfo &joint : info_.joints) {
+    RCLCPP_INFO(get_logger(), "Joint name: %s", joint.name.c_str());
+
+    RCLCPP_INFO(get_logger(), "Command interfaces:");
+    for (const auto &cmd : joint.command_interfaces) {
+      RCLCPP_INFO(get_logger(), "  - %s", cmd.name.c_str());
+    }
+
+    RCLCPP_INFO(get_logger(), "State interfaces:");
+    for (const auto &state : joint.state_interfaces) {
+      RCLCPP_INFO(get_logger(), "  - %s", state.name.c_str());
+    }
+  }
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+// INFO: CONFIGURE
+hardware_interface::CallbackReturn
+DiffBotSystemHardware::on_configure(const rclcpp_lifecycle::State &) {
+
+  RCLCPP_INFO(get_logger(), "ON "
+                            "CONFIGURE-----------------------------------------"
+                            "----------------------");
+
+  for (const auto &[name, descr] : joint_state_interfaces_) {
+    set_state(name, 0.0);
+  }
+
+  for (const auto &[name, descr] : joint_command_interfaces_) {
+    set_command(name, 0.0);
+  }
+  RCLCPP_INFO(get_logger(), "Successfully configured!");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+// INFO: ACTIVATE
+hardware_interface::CallbackReturn
+DiffBotSystemHardware::on_activate(const rclcpp_lifecycle::State &) {
+  RCLCPP_INFO(get_logger(),
+              "ON_ACTIVATE--------------------------------------------------");
+
+  // for (int i = 0; i < this->hw_start_sec_; i++) {
+  //   rclcpp::sleep_for(std::chrono::seconds(1));
+  //   RCLCPP_INFO(get_logger(), "%.1f sec left..", hw_start_sec_ - i);
+  //   // TODO:
+  //   // add serial initialization to either /tty/ACM0 or /tty/USB0
+  // }
+
+  if (!this->arduino_->connect_f(this->serial_port_, this->baudrate_)) {
+    RCLCPP_ERROR(get_logger(), "FAILED TO CONNECT TO ARDUINO");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  for (const auto &[name, descr] : joint_state_interfaces_) {
+    set_state(name, get_state(name));
+    RCLCPP_INFO(get_logger(), "State Interface ---> %s", name.c_str());
+  }
+
+  for (const auto &[name, descr] : joint_command_interfaces_) {
+    set_command(name, get_state(name));
+    RCLCPP_INFO(get_logger(), "Command Interface ---> %s", name.c_str());
+  }
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+// INFO: DEACTIVATE
+hardware_interface::CallbackReturn
+DiffBotSystemHardware::on_deactivate(const rclcpp_lifecycle::State &) {
+
+  RCLCPP_INFO(
+      get_logger(),
+      "ON_DEACTIVATE----------------------------------------------------");
+
+  for (const auto &[name, descr] : joint_command_interfaces_) {
+    set_command(name, 0.0);
+  }
+
+  this->arduino_->disconnect_f();
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+// INFO: READ
+hardware_interface::return_type
+DiffBotSystemHardware::read(const rclcpp::Time &,
+                            const rclcpp::Duration &period) {
+
+  double left_pos, left_vel;
+  double right_pos, right_vel;
+
+  if (!this->arduino_->readFeedback_f(left_pos, left_vel, right_pos,
+                                      right_vel)) {
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 2000,
+                         "FAILED READING ARDUINO");
+
+    return hardware_interface::return_type::OK;
+  }
+
+  // set_state("front_left_joint/position", left_pos);
+  set_state("back_left_wheel_joint/position", left_pos);
+  // set_state("front_left_joint/velocity", left_vel);
+  set_state("back_left_wheel_joint/velocity", left_vel);
+
+  // set_state("front_right_joint/position", right_pos);
+  set_state("back_right_wheel_joint/position", right_pos);
+  // set_state("front_right_joint/velocity", right_vel);
+  set_state("back_right_wheel_joint/velocity", right_vel);
+  RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 200, "UP");
+  return hardware_interface::return_type::OK;
+}
+
+// INFO: WRITE
+hardware_interface::return_type
+DiffBotSystemHardware::write(const rclcpp::Time &, const rclcpp::Duration &) {
+
+  double left_cmd = get_command("back_left_wheel_joint/velocity");
+
+  double right_cmd = get_command("back_right_wheel_joint/velocity");
+
+  if (!arduino_->writeCommand_f(left_cmd, right_cmd)) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 2000,
+                          "Failed writing to Arduino");
+  }
+
+  return hardware_interface::return_type::OK;
+}
+
+} // namespace four_wheel_hardware
+  //
+#include <pluginlib/class_list_macros.hpp>
+
+PLUGINLIB_EXPORT_CLASS(four_wheel_hardware::DiffBotSystemHardware,
+                       hardware_interface::SystemInterface)
