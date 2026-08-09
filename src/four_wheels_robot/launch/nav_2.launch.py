@@ -33,6 +33,7 @@ def generate_launch_description():
     )
 
     # 3. Individual Nav2 Node Configurations
+# Replace this:
     amcl_node = Node(
         package="nav2_amcl",
         executable="amcl",
@@ -41,6 +42,19 @@ def generate_launch_description():
         parameters=[amcl_yaml, {"use_sim_time": use_sim_time_var}],
     )
 
+# With this:
+    amcl_node = Node(
+        package="nav2_amcl",
+        executable="amcl",
+        name="amcl",
+        output="screen",
+        parameters=[
+            amcl_yaml, 
+            {"use_sim_time": use_sim_time_var},
+            {"publish_tf": True},      # ← FORCE this parameter
+            {"publish_odom": True}     # ← FORCE this parameter too
+        ],
+    )
     nav2_controller = Node(
         package="nav2_controller",
         executable="controller_server",

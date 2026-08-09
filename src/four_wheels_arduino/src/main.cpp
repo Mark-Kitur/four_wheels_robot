@@ -15,30 +15,30 @@ void setup() {
 }
 
 void loop() {
-  
+  float left;
+    float right;
+
+
 if (Serial.available())
 {
     String line = Serial.readStringUntil('\n');
 
-    float left;
-    float right;
-
-    if (sscanf(line.c_str(), "%f,%f",
+        if (sscanf(line.c_str(), "%f,%f",
                &left, &right) == 2)
     {
         // Drive motors
     }
 }
-  Serial.print(left_position);
+  Serial.print(left);
   Serial.print(",");
 
-  Serial.print(left_velocity);
-  Serial.print(",");
+  // Serial.print(left_velocity);
+  // Serial.print(",");
 
-  Serial.print(right_position);
-  Serial.print(",");
+  // Serial.print(right_position);
+  // Serial.print(",");
 
-  Serial.println(right_velocity);
+  Serial.println(right);
 
   delay(20);   // 50 Hz
 }
