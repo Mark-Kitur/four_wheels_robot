@@ -33,8 +33,8 @@
         </link>
     </xacro:macro>
 
-    <xacro:wheel prefix="front_left" />
-    <xacro:wheel prefix="front_right"/>
+    <!-- <xacro:wheel prefix="front_left" />
+    <xacro:wheel prefix="front_right"/> -->
     <xacro:wheel prefix="back_left"/>
     <xacro:wheel prefix="back_right" />
 
@@ -80,8 +80,8 @@
         </joint>
     </xacro:macro>
 
-    <xacro:wheel_joint prefix="front_left"  x="0.41" y="0.46" r="0"/>
-    <xacro:wheel_joint prefix="front_right" x="0.41" y="-0.46" r="0"/>
+    <!-- <xacro:wheel_joint prefix="front_left"  x="0.41" y="0.46" r="0"/>
+    <xacro:wheel_joint prefix="front_right" x="0.41" y="-0.46" r="0"/> -->
     <xacro:wheel_joint prefix="back_left"   x="-0.41" y="0.46" r="0"/>
     <xacro:wheel_joint prefix="back_right"  x="-0.41" y="-0.46" r="0"/>
 
