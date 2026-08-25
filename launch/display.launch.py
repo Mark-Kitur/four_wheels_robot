@@ -133,14 +133,14 @@ def generate_launch_description():
     #     parameters=[{
     #         'use_sim_time': use_sim_time
     #     }],
-    #     arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'four_wheels_robot/base_footprint/lidar_link']
+    #     arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'laser_link']
     # )
     ld = LaunchDescription([
         declare_use_sim_time,
         gz_sim,
         clock_bridge,
         robot_state_publisher,
-        # joint_state_publisher_gui,
+        #static_trans,
         rviz,
         spawn_entity,
         delayed_spawners,
