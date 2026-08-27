@@ -17,7 +17,11 @@ setup(
         (os.path.join('share',package_name,'config'),glob('config/*')),
         (os.path.join('share',package_name,'map'),glob('map/*')),
         (os.path.join('share', package_name,'world'), glob("world/*")),
+        (os.path.join('share', package_name,'AI_model'), glob('AI_model/*')),
     ],
+    package_data={
+            package_name: ['AI_model/*.pt'],
+        },
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='mark',
@@ -31,6 +35,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            "ai=four_wheels_robot.image_processing:main",
         ],
     },
 )

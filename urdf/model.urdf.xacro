@@ -130,5 +130,29 @@
   <origin xyz="0.0 0.0 0.005" rpy="0.0 0.0 0.0"/>
 </joint>
 
+<!-- camera link-->
+ <link name="camera_link">
+    <visual>
+        <geometry>
+            <box size="0.02 0.08 0.05"/>
+        </geometry>
+        <material name="">
+                <color rgba="1.0 0.6 0.9 1.0"/>
+            </material>
+    </visual>    
+    <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.01"/>
+        <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
+    </inertial>
+ </link>
+
+ <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.7 0.0 0.15" rpy="0 0 0"/>
+    
+ </joint>
+
 
 </robot>

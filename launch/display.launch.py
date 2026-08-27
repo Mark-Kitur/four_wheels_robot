@@ -24,7 +24,7 @@ def generate_launch_description():
 
     bridge_conf = os.path.join(pkg_share_dir,'config', "bridge.yaml")
 
-    world_path = os.path.join(pkg_share_dir,"world", 'simple_.sdf')
+    world_path = os.path.join(pkg_share_dir,"world", 'object.sdf')
 
     
     robot_state_publisher = Node(
@@ -125,22 +125,12 @@ def generate_launch_description():
         parameters=[os.path.join(pkg_share_dir, 'config', 'ekf.yaml'),
                     {'use_sim_time': use_sim_time}])
     
-    # static_trans=Node(
-    #     package='tf2_ros',
-    #     executable='static_transform_publisher',
-    #     name='static_transform_publisher',
-    #     output='screen',
-    #     parameters=[{
-    #         'use_sim_time': use_sim_time
-    #     }],
-    #     arguments=['0', '0', '0', '0', '0', '0','base_footprint', 'laser_link']
-    # )
+  
     ld = LaunchDescription([
         declare_use_sim_time,
         gz_sim,
         clock_bridge,
         robot_state_publisher,
-        #static_trans,
         rviz,
         spawn_entity,
         delayed_spawners,

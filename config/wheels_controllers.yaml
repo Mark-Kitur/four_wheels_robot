@@ -22,8 +22,8 @@ velocity_controller:
     # enable_odom_tf: false # to enable only the ekf node to publish the odom->base_footprint transform
     # #,"front_left_wheel_joint"] 
     #,"front_right_wheel_joint"]
-    left_wheel_names: ["back_left_wheel_joint"]
-    right_wheel_names: ["back_right_wheel_joint"]
+    left_wheel_names: ["back_left_wheel_joint","front_left_wheel_joint"]
+    right_wheel_names: ["back_right_wheel_joint","front_right_wheel_joint"]
       
     wheel_separation: 0.3
     wheel_radius: 0.28
@@ -39,6 +39,7 @@ velocity_controller:
     open_loop: true
     enable_odom_tf: true
     use_stamped_vel: true
+    use_sim_time: true
 
     linear.x.has_velocity_limits: true
     linear.x.has_acceleration_limits: true

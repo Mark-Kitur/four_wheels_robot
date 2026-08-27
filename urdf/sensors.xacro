@@ -74,4 +74,30 @@
     </sensor>
 </gazebo>
 
+<!-- ===========CAMERA Link============-->
+<gazebo reference="camera_link">
+  <sensor type="camera" name="cameral">
+    <update_rate>30.0</update_rate>
+    <always_on>true</always_on>
+    <topic>camera</topic>
+    <camera name="head">
+      <horizontal_fov>1.396234</horizontal_fov>
+      <image>
+        <width>800</width>
+        <height>600</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.02</near>
+        <far>300</far>
+      </clip>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.007</stddev>
+      </noise>
+    </camera>
+  </sensor>
+</gazebo>   
+
 </robot>
