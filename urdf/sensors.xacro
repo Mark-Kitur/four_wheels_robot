@@ -1,18 +1,63 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-    <gazebo>
-        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-            <render_engine>ogre2</render_engine>
+ <gazebo>
+        <plugin
+          filename="gz-sim-diff-drive-system"
+          name="gz::sim::systems::DiffDrive">
+
+<left_joint>front_left_wheel_joint</left_joint>
+<left_joint>back_left_wheel_joint</left_joint>
+<right_joint>front_right_wheel_joint</right_joint>
+<right_joint>back_right_wheel_joint</right_joint>
+
+          <wheel_separation>0.26</wheel_separation>
+          <wheel_radius>0.090</wheel_radius>
+
+          <max_linear_acceleration>10</max_linear_acceleration>
+
+          <topic>/cmd_vel</topic>
+      </plugin>
+      <plugin
+        filename="gz-sim-odometry-publisher-system"
+        name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>base_footprint</robot_base_frame>
+        <odom_publish_frequency>50</odom_publish_frequency>
+        <odom_topic>/odom</odom_topic>
+        <tf_topic>/tf</tf_topic>
+        <dimensions>2</dimensions>
         </plugin>
-  </gazebo>
+      
+        <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+            <topic>joint_states</topic>
+        </plugin>
+    </gazebo>
+
+<gazebo reference="front_left_wheel">
+  <mu1>10.0</mu1>
+  <mu2>5.0</mu2>
+</gazebo>
+<gazebo reference="front_right_wheel">
+  <mu1>10.0</mu1>
+  <mu2>5.0</mu2>
+</gazebo>
+<gazebo reference="back_left_wheel">
+  <mu1>10.0</mu1>
+  <mu2>5.0</mu2>
+</gazebo>
+<gazebo reference="back_right_wheel">
+  <mu1>10.0</mu1>
+  <mu2>5.0</mu2>
+</gazebo>
+
 
         <!--lidar sensor-->
 <gazebo reference="laser_link">
-    <sensor name="laser_link" type="gpu_lidar">
+    <sensor name="laser_sensor" type="gpu_lidar">
         <pose relative_to='laser_link'>0 0 0 0 0 0</pose>
         <topic>/scan</topic>
         <update_rate>20</update_rate>
-        <frame_id>laser_link</frame_id>
+        <!-- <frame_id>laser_link</frame_id> -->
         <gz_frame_id>laser_link</gz_frame_id>
         <lidar>
             <scan>
@@ -20,6 +65,7 @@
                     <samples>720</samples>
                     <resolution>1</resolution>
                     <min_angle>-3.14</min_angle>
+                    
                     <max_angle>3.14</max_angle>
                 </horizontal>
             </scan>
@@ -47,6 +93,8 @@
    <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
       <update_rate>20</update_rate>
+      <frame_id>imu_link</frame_id>
+      <gz_frame_id>imu_link</gz_frame_id>
 
       <noise type="gaussian">
         <mean>0.0</mean>

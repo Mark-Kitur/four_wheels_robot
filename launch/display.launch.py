@@ -24,7 +24,7 @@ def generate_launch_description():
 
     bridge_conf = os.path.join(pkg_share_dir,'config', "bridge.yaml")
 
-    world_path = os.path.join(pkg_share_dir,"world", 'object.sdf')
+    world_path = os.path.join(pkg_share_dir,"world", 'simple_.sdf')
 
     
     robot_state_publisher = Node(
@@ -78,7 +78,7 @@ def generate_launch_description():
             '-topic', 'robot_description',
             '-x', '0.0',
             '-y', '-1.0',
-            '-z', '0.6'
+            '-z', '0.192'
         ],
         output='screen'
     )
@@ -133,8 +133,8 @@ def generate_launch_description():
         robot_state_publisher,
         rviz,
         spawn_entity,
-        delayed_spawners,
-        robot_localization_node,
+        #delayed_spawners,
+        robot_localization_node,    
     ])
 
     return ld
