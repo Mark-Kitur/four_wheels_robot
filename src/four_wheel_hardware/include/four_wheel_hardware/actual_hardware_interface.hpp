@@ -17,7 +17,7 @@ public:
 
 private:
   int serial_fd_;
-	bool readLine(std::string &line);
+  bool readLine(std::string &line);
 };
 
 } // namespace four_wheel_hardware
