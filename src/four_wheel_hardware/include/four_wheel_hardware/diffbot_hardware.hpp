@@ -1,12 +1,11 @@
 #pragma once
 #include "four_wheel_hardware/actual_hardware_interface.hpp"
 #include "hardware_interface/handle.hpp"
-#include <memory>
-#include <rclcpp/context.hpp>
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/system_interface.hpp"
 #include <hardware_interface/hardware_component_interface.hpp>
 #include <hardware_interface/types/hardware_interface_return_values.hpp>
+#include <memory>
 #include <rclcpp/context.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
@@ -37,11 +36,10 @@ public:
                                         const rclcpp::Duration &) override;
 
 private:
-	// std::unique_ptr<ArduinoInterface> arduino_;
+  std::unique_ptr<ArduinoInterface> arduino_;
 
-	std::string serial_port_;
-	int baudrate_;
-
+  std::string serial_port_;
+  int baudrate_;
 
   double hw_start_sec_, hw_stop_sec_;
 };

@@ -47,6 +47,20 @@ void loop() {
   analogWrite(ENB, right_vel*10);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+  // IMU
+	float orientation_x = 0.0f;
+	float orientation_y = 0.0f;
+	float orientation_z = 0.0f;
+	float orientation_w = 0.0f;
+
+	float angular_velocity_x = 0.0f;
+	float angular_velocity_y = 0.0f;
+	float angular_velocity_z = 0.0f;
+
+	float linear_acceleration_x = 0.0f;
+	float linear_acceleration_y = 0.0f;
+	float linear_acceleration_z = 0.0f;
+
 
 
   float left_position = 0.0f;
@@ -54,6 +68,7 @@ void loop() {
   right_position_vel += 1;
   left_position_vel += 1;
   // Send feedback
+
   Serial.print(left_position, 3);
   Serial.print(",");
   Serial.print(left_vel, 3);
@@ -61,6 +76,20 @@ void loop() {
   Serial.print(right_position, 3);
   Serial.print(",");
   Serial.println(right_vel, 3);
+  Serial.print(",");
+  
+	Serial.print(orientation_x,3); Serial.print(",") ;
+	Serial.print(orientation_y,3); Serial.print(",") ;
+	Serial.print(orientation_z,3); Serial.print(",") ;
+	Serial.print(orientation_w,3); Serial.print(",") ;
+
+	Serial.print(angular_velocity_x,3); Serial.print(",") ;
+	Serial.print(angular_velocity_y,3); Serial.print(",") ;
+	Serial.print(angular_velocity_z,3); Serial.print(",") ;
+
+	Serial.print(linear_acceleration_x,3); Serial.print(",") ;
+	Serial.print(linear_acceleration_y,3); Serial.print(",") ;
+	Serial.print(linear_acceleration_z,3); Serial.print(",") ;
 
   delay(20);
 }

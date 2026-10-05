@@ -40,7 +40,7 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
 
   RCLCPP_INFO(get_logger(), "ON_INIT-------------------------------");
 
-  // this->arduino_ = std::make_unique<ArduinoInterface>();
+  this->arduino_ = std::make_unique<ArduinoInterface>();
 
   // grabs joints
   for (const hardware_interface::ComponentInfo &joint : info_.joints) {
@@ -155,7 +155,7 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
     //  */
   }
 
-	// debug log for joints
+  // debug log for joints
   for (const hardware_interface::ComponentInfo &joint : info_.joints) {
     RCLCPP_INFO(get_logger(), "Joint name: %s", joint.name.c_str());
 
@@ -169,7 +169,7 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
       RCLCPP_INFO(get_logger(), "  - %s", state.name.c_str());
     }
   }
-	// debug log for sensors
+  // debug log for sensors
   for (const hardware_interface::ComponentInfo &sensor : info_.sensors) {
     RCLCPP_INFO(get_logger(), "Joint name: %s", sensor.name.c_str());
 
@@ -197,6 +197,12 @@ DiffBotSystemHardware::on_configure(const rclcpp_lifecycle::State &) {
   for (const auto &[name, descr] : joint_command_interfaces_) {
     set_command(name, 0.0);
   }
+
+  // configure the sensor interfaces
+  for (const auto &[name, descr] : sensor_state_interfaces_) {
+    set_state(name, 0.0);
+  }
+
   RCLCPP_INFO(get_logger(), "Successfully configured!");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -214,14 +220,19 @@ DiffBotSystemHardware::on_activate(const rclcpp_lifecycle::State &) {
   //   // add serial initialization to either /tty/ACM0 or /tty/USB0
   // }
 
-  // if (!this->arduino_->connect_f(this->serial_port_, this->baudrate_)) {
-  //   RCLCPP_ERROR(get_logger(), "FAILED TO CONNECT TO ARDUINO");
-  //   return hardware_interface::CallbackReturn::ERROR;
-  // }
+  if (!this->arduino_->connect_f(this->serial_port_, this->baudrate_)) {
+    RCLCPP_ERROR(get_logger(), "FAILED TO CONNECT TO ARDUINO");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
 
   for (const auto &[name, descr] : joint_state_interfaces_) {
     set_state(name, get_state(name));
     RCLCPP_INFO(get_logger(), "State Interface ---> %s", name.c_str());
+  }
+
+  for (const auto &[name, descr] : sensor_state_interfaces_) {
+    set_state(name, get_state(name));
+    RCLCPP_INFO(get_logger(), "Sensor State Interface ---> %s", name.c_str());
   }
 
   for (const auto &[name, descr] : joint_command_interfaces_) {
@@ -253,26 +264,44 @@ hardware_interface::return_type
 DiffBotSystemHardware::read(const rclcpp::Time &,
                             const rclcpp::Duration &period) {
 
-  double left_pos = 0, left_vel = 0;
-  double right_pos = 0, right_vel = 0;
+  double left_pos, left_vel;
+  double right_pos, right_vel;
 
-  // if (!this->arduino_->readFeedback_f(left_pos, left_vel, right_pos,
-  //                                     right_vel)) {
-  //   RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 2000,
-  //                        "FAILED READING ARDUINO");
-  //
-  //   return hardware_interface::return_type::OK;
-  // }
+  double orientation_x, orientation_y, orientation_z, orientation_w;
+  double angular_velocity_x, angular_velocity_y, angular_velocity_z;
+  double linear_acceleration_x, linear_acceleration_y, linear_acceleration_z;
 
-  // set_state("front_left_joint/position", left_pos);
+  if (!this->arduino_->readFeedback_f(
+          left_pos, left_vel, right_pos, right_vel, orientation_x,
+          orientation_y, orientation_z, orientation_w, angular_velocity_x,
+          angular_velocity_y, angular_velocity_z, linear_acceleration_x,
+          linear_acceleration_y, linear_acceleration_z)) {
+
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 2000,
+                         "FAILED READING ARDUINO");
+
+    return hardware_interface::return_type::OK;
+  }
+
   set_state("back_left_wheel_joint/position", left_pos);
-  // set_state("front_left_joint/velocity", left_vel);
   set_state("back_left_wheel_joint/velocity", left_vel);
 
-  // set_state("front_right_joint/position", right_pos);
   set_state("back_right_wheel_joint/position", right_pos);
-  // set_state("front_right_joint/velocity", right_vel);
   set_state("back_right_wheel_joint/velocity", right_vel);
+
+  // set_state("imu_sensor/orientation.x", orientation_x);
+  // set_state("imu_sensor/orientation.y", orientation_y);
+  // set_state("imu_sensor/orientation.z", orientation_z);
+  // set_state("imu_sensor/orientation.w", orientation_y);
+  //
+  // set_state("imu_sensor/angular_velocity.x", angular_velocity_x);
+  // set_state("imu_sensor/angular_velocity.y", angular_velocity_y);
+  // set_state("imu_sensor/angular_velocity.z", angular_velocity_z);
+  //
+  // set_state("imu_sensor/linear_acceleration.x", linear_acceleration_x);
+  // set_state("imu_sensor/linear_acceleration.y", linear_acceleration_y);
+  // set_state("imu_sensor/linear_acceleration.z", linear_acceleration_z);
+
   RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 200, "UP");
   return hardware_interface::return_type::OK;
 }
@@ -285,10 +314,10 @@ DiffBotSystemHardware::write(const rclcpp::Time &, const rclcpp::Duration &) {
 
   double right_cmd = get_command("back_right_wheel_joint/velocity");
 
-  // if (!arduino_->writeCommand_f(left_cmd, right_cmd)) {
-  //   RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 2000,
-  //                         "Failed writing to Arduino");
-  // }
+  if (!arduino_->writeCommand_f(left_cmd, right_cmd)) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 2000,
+                          "Failed writing to Arduino");
+  }
 
   return hardware_interface::return_type::OK;
 }
