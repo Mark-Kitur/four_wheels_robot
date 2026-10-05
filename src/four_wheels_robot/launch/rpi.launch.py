@@ -37,22 +37,23 @@ def generate_launch_description():
 
     # Controllers Joint broadcaster, IMU, Diff drive
     joint_state_broadcaster_spawner = Node(
-    package="controller_manager",
-    executable="spawner",
-    name="joint_state_broadcaster_spawner",
-    arguments=[
-        "joint_state_broadcaster",
-        "--controller-manager",
-        "/controller_manager"
-    ]
-)
+            package="controller_manager",
+            executable="spawner",
+            name="joint_state_broadcaster_spawner",
+            arguments=[
+                "joint_state_broadcaster",
+                "--controller-manager",
+                "/controller_manager"
+                ]
+            )
 
 
-    # imu_broadcaster_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=['imu_sensor_broadcaster']
-    # )
+
+    imu_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=['imu_sensor_broadcaster',"--controller-manager",'/controller_manager']
+    )
 
     velocity_spawner=Node(
         package="controller_manager",
@@ -67,6 +68,7 @@ def generate_launch_description():
         actions=[
             joint_state_broadcaster_spawner,
             velocity_spawner,
+            imu_broadcaster_spawner,
         ]
     )
 
