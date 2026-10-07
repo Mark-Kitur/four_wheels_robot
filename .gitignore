@@ -1,5 +1,14 @@
 /map
-.vscode
+.vscode/
 .pyc
 __pycache__/
 __init__.py 
+
+custom_ms/
+demo_pkg/
+demo_urdf/
+my_package/
+py_srvcli/
+ros_tutorials/
+serial_motor_demo_msgs/
+serial_motor_demo/
