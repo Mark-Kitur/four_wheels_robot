@@ -97,8 +97,18 @@ bool ArduinoInterface::readLine(std::string &line) {
     line += c;
   }
 }
-bool ArduinoInterface::readFeedback_f(double &left_pos, double &left_vel,
-                                      double &right_pos, double &right_vel) {
+bool ArduinoInterface::readFeedback_f(
+    double &left_pos, double &left_vel, double &right_pos, double &right_vel,
+
+    double &orientation_x, double &orientation_y, double &orientation_z,
+    double &orientation_w,
+
+    double &angular_velocity_x, double &angular_velocity_y,
+    double &angular_velocity_z,
+
+    double &linear_acceleration_x, double &linear_acceleration_y,
+    double &linear_acceleration_z) {
+
   std::string line;
 
   if (!readLine(line)) {
@@ -109,8 +119,15 @@ bool ArduinoInterface::readFeedback_f(double &left_pos, double &left_vel,
 
   RCLCPP_INFO(rclcpp::get_logger("arduino"), "Received: '%s'", line.c_str());
 
-  int parsed = std::sscanf(line.c_str(), "%lf,%lf,%lf,%lf", &left_pos,
-                           &left_vel, &right_pos, &right_vel);
+  int parsed = std::sscanf(
+      line.c_str(), "%lf,%lf,%lf,%lf, %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",
+      &left_pos, &left_vel, &right_pos, &right_vel,
+
+      &orientation_x, &orientation_y, &orientation_z, &orientation_w,
+
+      &angular_velocity_x, &angular_velocity_y, &angular_velocity_z,
+
+      &linear_acceleration_x, &linear_acceleration_y, &linear_acceleration_z);
 
   RCLCPP_INFO(rclcpp::get_logger("arduino"), "Parsed %d values", parsed);
 
