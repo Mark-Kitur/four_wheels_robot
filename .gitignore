@@ -12,3 +12,14 @@ py_srvcli/
 ros_tutorials/
 serial_motor_demo_msgs/
 serial_motor_demo/
+
+
+build/
+install/
+log/
+
+*.pdf
+*.gv
+log.txt
+rosgraph.png 
+
